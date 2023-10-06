@@ -1,0 +1,148 @@
+---
+# Source: testkube/charts/testkube-api/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testkube-api-server
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+  annotations:
+    checksum/config: ffa32827e14a41610aa8d9c006fee0893d4217472ea52a616c00fee4469c4aea
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api-server
+      app.kubernetes.io/instance: testkube
+  template:
+    metadata:
+      annotations:
+        checksum/config: ffa32827e14a41610aa8d9c006fee0893d4217472ea52a616c00fee4469c4aea
+      labels:
+        app.kubernetes.io/name: api-server
+        app.kubernetes.io/instance: testkube
+    spec:
+      
+      serviceAccountName: testkube-api-server
+      containers:
+        - name: testkube-api
+          env:
+            - name: APISERVER_PORT
+              value: "8088"
+            - name: API_MONGO_DSN
+              value: "mongodb://testkube-mongodb:27017"
+            - name: API_MONGO_ALLOW_DISK_USE
+              value: "true"
+            - name: NATS_URI
+              value: "nats://testkube-nats"
+            - name: POSTMANEXECUTOR_URI
+              value: ""
+            - name: TESTKUBE_ANALYTICS_ENABLED
+              value: "true"
+            - name: SLACK_TOKEN
+              value: ""
+            - name: "STORAGE_ENDPOINT"
+              value:  "testkube-minio-service-default:9000"
+            - name: "STORAGE_BUCKET"
+              value:  "testkube-artifacts"
+            - name: "STORAGE_EXPIRATION"
+              value:  "0"
+            - name: "STORAGE_ACCESSKEYID"
+              value: "minio"
+            - name: "STORAGE_SECRETACCESSKEY"
+              value: "minio123"
+            - name: "STORAGE_REGION"
+              value: ""
+            - name: "STORAGE_TOKEN"
+              value: ""
+            - name: "STORAGE_SSL"
+              value:  "false"
+            - name: "SCRAPPERENABLED"
+              value:  "true"
+            - name: "COMPRESSARTIFACTS"
+              value:  "true"
+            - name: "LOGS_BUCKET"
+              value:  "testkube-logs"
+            - name: "LOGS_STORAGE"
+              value:  "minio"
+            - name: TESTKUBE_NAMESPACE
+              value: "default"
+            - name: JOB_SERVICE_ACCOUNT_NAME
+              value: ""
+            - name: APISERVER_FULLNAME
+              value: "testkube-api-server"
+            - name: APISERVER_CONFIG
+              value: "testkube-api-server-config-default"
+            - name: APISERVER_HTTP_READBUFFERSIZE
+              value: "8192"
+            - name: TESTKUBE_OAUTH_CLIENTID
+              value:  ""
+            - name: TESTKUBE_OAUTH_CLIENTSECRET
+              value:  ""
+            - name: TESTKUBE_OAUTH_PROVIDER
+              value:  "github"
+            - name: TESTKUBE_OAUTH_SCOPES
+              value:  ""
+            - name: TESTKUBE_CLOUD_URL
+              value:  "agent.testkube.io:443"
+            - name: TESTKUBE_WATCHER_NAMESPACES
+              value: ""
+            - name: TESTKUBE_CONFIG_DIR
+              value: /app/config
+            - name: TESTKUBE_REGISTRY
+              value:  
+            - name: TESTKUBE_POD_START_TIMEOUT
+              value:  "30m"
+            - name: CDEVENTS_TARGET
+              value: ""
+            - name: TESTKUBE_DASHBOARD_URI
+              value: ""
+            - name: TESTKUBE_CLUSTER_NAME
+              value: ""
+            - name: TESTKUBE_HELMCHART_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: testkube-global-config
+                  key: helmchartVersion
+          image: docker.io/kubeshop/testkube-api-server:1.14.6
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8088
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 15
+            httpGet:
+              path: /health
+              port: 8088
+              scheme: HTTP
+          readinessProbe:
+            initialDelaySeconds: 30
+            httpGet:
+              path: /health
+              port: 8088
+              scheme: HTTP
+          resources:
+            requests:
+              cpu: 200m
+              memory: 200Mi
+          volumeMounts:
+            - mountPath: /app/config
+              name: testkube-config
+          securityContext:
+            {}
+      securityContext:
+        {}
+      volumes:
+        - name: testkube-config
+          configMap:
+            name: testkube-api-server
+      tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64

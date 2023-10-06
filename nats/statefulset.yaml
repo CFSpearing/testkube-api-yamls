@@ -1,0 +1,204 @@
+---
+# Source: testkube/charts/nats/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: testkube-nats
+  namespace: default
+  labels:
+    helm.sh/chart: nats-0.19.1
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/instance: testkube
+    app.kubernetes.io/version: "2.9.8"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nats
+      app.kubernetes.io/instance: testkube
+  replicas: 1
+  serviceName: testkube-nats
+
+  podManagementPolicy: Parallel
+
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "7777"
+        prometheus.io/scrape: "true"
+        checksum/config: 78a6e5c7e1ee40376118c1aae607ca235c30dde9db68e2ac73d142ce54924584
+      labels:
+        app.kubernetes.io/name: nats
+        app.kubernetes.io/instance: testkube
+    spec:
+      tolerations: 
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+      dnsPolicy: ClusterFirst
+      # Common volumes for the containers.
+      volumes:
+      - name: config-volume
+        configMap:
+          name: testkube-nats-config
+
+      # Local volume shared with the reloader.
+      - name: pid
+        emptyDir: {}
+
+      #################
+      #               #
+      #  TLS Volumes  #
+      #               #
+      #################
+
+      serviceAccountName: testkube-nats
+
+      # Required to be able to HUP signal and apply config
+      # reload to the server without restarting the pod.
+      shareProcessNamespace: true
+
+      #################
+      #               #
+      #  NATS Server  #
+      #               #
+      #################
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: nats
+        image: nats:2.9.8-alpine
+        imagePullPolicy: IfNotPresent
+        resources:
+          {}
+        ports:
+        - containerPort: 4222
+          name: client
+        - containerPort: 6222
+          name: cluster
+        - containerPort: 8222
+          name: monitor
+
+        command:
+        - "nats-server"
+        - "--config"
+        - "/etc/nats-config/nats.conf"
+
+        # Required to be able to define an environment variable
+        # that refers to other environment variables.  This env var
+        # is later used as part of the configuration file.
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: SERVER_NAME
+          value: $(POD_NAME)
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: CLUSTER_ADVERTISE
+          value: $(POD_NAME).testkube-nats.$(POD_NAMESPACE).svc.cluster.local
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nats-config
+        - name: pid
+          mountPath: /var/run/nats
+        
+
+        #######################
+        #                     #
+        # Healthcheck Probes  #
+        #                     #
+        #######################
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8222
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8222
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        startupProbe:
+          # for NATS server versions >=2.7.1, /healthz will be enabled
+          # startup probe checks that the JS server is enabled, is current with the meta leader,
+          # and that all streams and consumers assigned to this JS server are current
+          failureThreshold: 30
+          httpGet:
+            path: /healthz
+            port: 8222
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+
+        # Gracefully stop NATS Server on pod deletion or image upgrade.
+        #
+        lifecycle:
+          preStop:
+            exec:
+              # send the lame duck shutdown signal to trigger a graceful shutdown
+              # nats-server will ignore the TERM signal it receives after this
+              #
+              command:
+              - "nats-server"
+              - "-sl=ldm=/var/run/nats/nats.pid"
+
+      #################################
+      #                               #
+      #  NATS Configuration Reloader  #
+      #                               #
+      #################################
+      - name: reloader
+        image: natsio/nats-server-config-reloader:0.7.4
+        imagePullPolicy: IfNotPresent
+        resources:
+          null
+        command:
+        - "nats-server-config-reloader"
+        - "-pid"
+        - "/var/run/nats/nats.pid"
+        - "-config"
+        - "/etc/nats-config/nats.conf"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nats-config
+        - name: pid
+          mountPath: /var/run/nats
+        
+
+      ##############################
+      #                            #
+      #  NATS Prometheus Exporter  #
+      #                            #
+      ##############################
+      - name: metrics
+        image: natsio/prometheus-nats-exporter:0.10.1
+        imagePullPolicy: IfNotPresent
+        resources:
+          {}
+        args:
+        - -connz
+        - -routez
+        - -subz
+        - -varz
+        - -prefix=nats
+        - -use_internal_server_id
+        - http://localhost:8222/
+        ports:
+        - containerPort: 7777
+          name: metrics
+
+  volumeClaimTemplates:

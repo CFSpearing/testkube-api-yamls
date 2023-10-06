@@ -1,0 +1,13 @@
+---
+# Source: testkube/charts/nats/templates/rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: testkube-nats
+  namespace: default
+  labels:
+    helm.sh/chart: nats-0.19.1
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/instance: testkube
+    app.kubernetes.io/version: "2.9.8"
+    app.kubernetes.io/managed-by: Helm

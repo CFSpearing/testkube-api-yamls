@@ -1,0 +1,22 @@
+---
+# Source: testkube/charts/testkube-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: testkube-api-server
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8088
+      targetPort: 8088
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube

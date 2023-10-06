@@ -1,0 +1,64 @@
+---
+# Source: testkube/charts/testkube-dashboard/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testkube-dashboard
+  labels:
+    app.kubernetes.io/version: "latest"
+    helm.sh/chart: testkube-dashboard-latest
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: dashboard
+    app.kubernetes.io/instance: testkube
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dashboard
+      app.kubernetes.io/instance: testkube
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dashboard
+        app.kubernetes.io/instance: testkube
+    spec:
+      
+      serviceAccountName: testkube-dashboard
+      securityContext:
+        {}
+      containers:
+        - name: testkube-dashboard
+          env:
+          - name: REACT_APP_API_SERVER_ENDPOINT
+            value: ""
+          - name: REACT_APP_ROOT_ROUTE
+            value: "/"
+          - name: REACT_APP_DISABLE_TELEMETRY
+            value: "false"
+          - name: REACT_APP_CRD_OPERATOR_REVISION
+            value: "main"
+          - name: ENABLE_IPV6
+            value: "false"
+          securityContext:
+            {}
+          image: docker.io/kubeshop/testkube-dashboard:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {}
+      tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64

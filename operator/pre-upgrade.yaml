@@ -1,0 +1,51 @@
+---
+# Source: testkube/charts/testkube-operator/templates/pre-upgrade.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: testkube-operator-pre-upgrade
+  labels:
+    helm.sh/chart: "testkube-operator-1.14.0"
+    job-name: testkube-operator-pre-upgrade
+  annotations:
+    "helm.sh/hook": pre-upgrade, pre-install
+    "helm.sh/hook-weight": "4"
+    "helm.sh/hook-delete-policy": before-hook-creation, hook-succeeded
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    metadata:
+      name: testkube-operator-pre-upgrade
+      labels:
+        app.kubernetes.io/component: testkube-operator
+        app.kubernetes.io/name: testkube-operator-pre-upgrade
+      annotations:
+    spec:
+      serviceAccountName:  testkube-operator-pre-upgrade-sa
+      
+      containers:
+      - name: kubectl
+        image: registry.k8s.io/hyperkube:v1.12.1
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/bash
+        - -c
+        - >
+            NAMESPACE=default
+            echo "Checking if namespace ${NAMESPACE} exists"
+              if kubectl get namespaces ${NAMESPACE}
+                then echo "Namespace already exists";
+              else
+                echo "creating namespace ${NAMESPACE}"
+                kubectl create namespace ${NAMESPACE};
+              fi
+        securityContext:
+          {}
+      securityContext:
+        {}
+      restartPolicy: Never
+      tolerations: 
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64

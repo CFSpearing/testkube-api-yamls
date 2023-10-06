@@ -1,0 +1,989 @@
+---
+# Source: testkube/charts/testkube-api/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: testkube-api-server
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+data:
+  executors.json: |
+    [
+        {
+            "name": "tracetest-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-tracetest-executor:1.14.6",
+                "command": [
+                    "tracetest"
+                ],
+                "args": [
+                    "test",
+                    "run",
+                    "--server-url",
+                    "<tracetestServer>",
+                    "--definition",
+                    "<filePath>",
+                    "--wait-for-result",
+                    "--output",
+                    "pretty"
+                ],
+                "types": [
+                    "tracetest/test"
+                ],
+                "contentTypes": [
+                    "string",
+                    "file-uri",
+                    "git"
+                ],
+                "features": [
+                    "artifacts"
+                ],
+                "meta": {
+                    "iconURI": "tracetest",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-tracetest"
+                }
+            }
+        },
+        {
+            "name": "zap-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-zap-executor:1.14.6",
+                "command": [
+                    "<pythonScriptPath>"
+                ],
+                "args": [
+                    "<fileArgs>"
+                ],
+                "types": [
+                    "zap/api",
+                    "zap/baseline",
+                    "zap/full"
+                ],
+                "contentTypes": [
+                    "string",
+                    "file-uri",
+                    "git"
+                ],
+                "features": [
+                    "artifacts"
+                ],
+                "meta": {
+                    "iconURI": "zap",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-zap"
+                }
+            }
+        },
+        {
+            "name": "playwright-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-playwright-executor:1.14.6",
+                "command": [
+                    "<depManager>"
+                ],
+                "args": [
+                    "<depCommand>",
+                    "playwright",
+                    "test"
+                ],
+                "types": [
+                    "playwright/test"
+                ],
+                "contentTypes": [
+                    "git-dir",
+                    "git"
+                ],
+                "features": [
+                    "artifacts"
+                ],
+                "meta": {
+                    "iconURI": "playwright",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-playwright"
+                }
+            }
+        },
+        {
+            "name": "jmeter-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-jmeter-executor:1.14.6",
+                "command": [
+                    "<entryPoint>"
+                ],
+                "args": [
+                    "-n",
+                    "-j",
+                    "<logFile>",
+                    "-t",
+                    "<runPath>",
+                    "-l",
+                    "<jtlFile>",
+                    "-e",
+                    "-o",
+                    "<reportFile>",
+                    "<envVars>"
+                ],
+                "types": [
+                    "jmeter/test"
+                ],
+                "contentTypes": [
+                    "string",
+                    "file-uri",
+                    "git-file",
+                    "git-dir",
+                    "git"
+                ],
+                "features": [
+                    "artifacts"
+                ],
+                "meta": {
+                    "iconURI": "jmeter",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-jmeter"
+                }
+            }
+        },
+        {
+            "name": "ginkgo-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-ginkgo-executor:1.14.6",
+                "command": [
+                    "ginkgo"
+                ],
+                "args": [
+                    "-r",
+                    "-p",
+                    "--randomize-all",
+                    "--randomize-suites",
+                    "--keep-going",
+                    "--trace",
+                    "--junit-report",
+                    "<reportFile>",
+                    "<envVars>",
+                    "<runPath>"
+                ],
+                "types": [
+                    "ginkgo/test"
+                ],
+                "contentTypes": [
+                    "string",
+                    "file-uri",
+                    "git-file",
+                    "git-dir",
+                    "git"
+                ],
+                "features": [
+                    "artifacts",
+                    "junit-report"
+                ],
+                "meta": {
+                    "iconURI": "ginkgo",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-ginkgo"
+                }
+            }
+        },
+        {
+            "name": "maven-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-maven-executor:1.14.6",
+                "command": [
+                    "mvn"
+                ],
+                "args": [
+                    "--settings",
+                    "<settingsFile>",
+                    "<goalName>",
+                    "-Duser.home",
+                    "<mavenHome>"
+                ],
+                "types": [
+                    "maven/project",
+                    "maven/test",
+                    "maven/integration-test"
+                ],
+                "contentTypes": [
+                    "git-dir",
+                    "git"
+                ],
+                "features": [
+                    "artifacts"
+                ],
+                "meta": {
+                    "iconURI": "maven",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-maven"
+                }
+            }
+        },
+        {
+            "name": "gradle-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-gradle-executor:1.14.6",
+                "command": [
+                    "gradle"
+                ],
+                "args": [
+                    "--no-daemon",
+                    "<taskName>",
+                    "-p",
+                    "<projectDir>"
+                ],
+                "types": [
+                    "gradle/project",
+                    "gradle/test",
+                    "gradle/integrationTest"
+                ],
+                "contentTypes": [
+                    "git-dir",
+                    "git"
+                ],
+                "features": [
+                    "artifacts"
+                ],
+                "meta": {
+                    "iconURI": "gradle",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-gradle"
+                }
+            }
+        },
+        {
+            "name": "kubepug-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-kubepug-executor:1.14.6",
+                "command": [
+                    "kubepug"
+                ],
+                "args": [
+                    "--format=json",
+                    "--input-file",
+                    "<runPath>"
+                ],
+                "types": [
+                    "kubepug/yaml",
+                    "kubepug/json"
+                ],
+                "contentTypes": [
+                    "string",
+                    "file-uri",
+                    "git-file",
+                    "git-dir",
+                    "git"
+                ],
+                "features": [
+                    "artifacts"
+                ],
+                "meta": {
+                    "iconURI": "kubepug",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-kubepug"
+                }
+            }
+        },
+        {
+            "name": "soapui-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-soapui-executor:1.14.6",
+                "command": [
+                    "/bin/sh",
+                    "/usr/local/SmartBear/EntryPoint.sh"
+                ],
+                "args": [
+                    "<runPath>"
+                ],
+                "types": [
+                    "soapui/xml"
+                ],
+                "contentTypes": [
+                    "string",
+                    "file-uri",
+                    "git-file",
+                    "git"
+                ],
+                "features": [
+                    "artifacts"
+                ],
+                "meta": {
+                    "iconURI": "soapui",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-soapui"
+                }
+            }
+        },
+        {
+            "name": "k6-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-k6-executor:1.14.6",
+                "command": [
+                    "k6"
+                ],
+                "args": [
+                    "<k6Command>",
+                    "<envVars>",
+                    "<runPath>"
+                ],
+                "types": [
+                    "k6/script"
+                ],
+                "contentTypes": [
+                    "string",
+                    "file-uri",
+                    "git-file",
+                    "git-dir",
+                    "git"
+                ],
+                "features": [
+                    "artifacts"
+                ],
+                "meta": {
+                    "iconURI": "k6",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-k6"
+                }
+            }
+        },
+        {
+            "name": "cypress-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-cypress-executor:1.14.6",
+                "command": [
+                    "./node_modules/cypress/bin/cypress"
+                ],
+                "args": [
+                    "run",
+                    "--reporter",
+                    "junit",
+                    "--reporter-options",
+                    "mochaFile=<reportFile>,toConsole=false",
+                    "--project",
+                    "<projectPath>",
+                    "--env",
+                    "<envVars>"
+                ],
+                "types": [
+                    "cypress/project"
+                ],
+                "contentTypes": [
+                    "git-dir",
+                    "git"
+                ],
+                "features": [
+                    "artifacts",
+                    "junit-report"
+                ],
+                "meta": {
+                    "iconURI": "cypress",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-cypress"
+                }
+            }
+        },
+        {
+            "name": "curl-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-curl-executor:1.14.6",
+                "command": [
+                    "curl"
+                ],
+                "args": [
+                    "-is"
+                ],
+                "types": [
+                    "curl/test"
+                ],
+                "contentTypes": [
+                    "string",
+                    "file-uri",
+                    "git-file",
+                    "git"
+                ],
+                "features": [
+                    "artifacts"
+                ],
+                "meta": {
+                    "iconURI": "curl",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-curl"
+                }
+            }
+        },
+        {
+            "name": "postman-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-postman-executor:1.14.6",
+                "command": [
+                    "newman"
+                ],
+                "args": [
+                    "run",
+                    "<runPath>",
+                    "-e",
+                    "<envFile>",
+                    "--reporters",
+                    "cli,json",
+                    "--reporter-json-export",
+                    "<reportFile>"
+                ],
+                "types": [
+                    "postman/collection"
+                ],
+                "contentTypes": [
+                    "string",
+                    "file-uri",
+                    "git-file",
+                    "git"
+                ],
+                "features": [
+                    "artifacts"
+                ],
+                "meta": {
+                    "iconURI": "postman",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-postman"
+                }
+            }
+        },
+        {
+            "name": "artillery-executor",
+            "executor": {
+                "executorType": "job",
+                "image": "kubeshop/testkube-artillery-executor:1.14.6",
+                "command": [
+                    "artillery"
+                ],
+                "args": [
+                    "run",
+                    "<runPath>",
+                    "--dotenv",
+                    "<envFile>",
+                    "-o",
+                    "<reportFile>"
+                ],
+                "types": [
+                    "artillery/test"
+                ],
+                "contentTypes": [
+                    "string",
+                    "file-uri",
+                    "git-file",
+                    "git-dir",
+                    "git"
+                ],
+                "features": [
+                    "artifacts"
+                ],
+                "meta": {
+                    "iconURI": "artillery",
+                    "docsURI": "https://kubeshop.github.io/testkube/test-types/executor-artillery"
+                }
+            }
+        },
+        {
+            "name": "scraper-executor",
+            "executor": {
+                "executorType": "scraper",
+                "image": "kubeshop/testkube-scraper-executor:1.14.6",
+                "types": []
+            }
+        },
+        {
+            "name": "init-executor",
+            "executor": {
+                "executorType": "init",
+                "image": "kubeshop/testkube-init-executor:1.14.6",
+                "types": []
+            }
+        }
+    ]
+  job-container-template.yml: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: "{{ .Name }}"
+      namespace: {{ .Namespace }}
+    spec:
+      {{- if gt .ActiveDeadlineSeconds 0 }}
+      activeDeadlineSeconds: {{ .ActiveDeadlineSeconds }}
+      {{- end }}
+      template:
+        spec:
+          {{- if ne .InitImage "" }}
+          initContainers:
+          - name: {{ .Name }}-init
+            {{- if .Registry }}
+            image: {{ .Registry }}/{{ .InitImage }}
+            {{- else }}
+            image: {{ .InitImage }}
+            {{- end }}
+            imagePullPolicy: IfNotPresent
+            command:
+              - "/bin/runner"
+              - '{{ .Jsn }}'
+            volumeMounts:
+            - name: data-volume
+              mountPath: /data
+            {{- if .CertificateSecret }}
+            - name: {{ .CertificateSecret }}
+              mountPath: /etc/certs
+            {{- end }}
+            {{- if .ArtifactRequest }}
+              {{- if .ArtifactRequest.VolumeMountPath }}
+            - name: artifact-volume
+              mountPath: {{ .ArtifactRequest.VolumeMountPath }}
+              {{- end }}
+            {{- end }}
+            {{- range $configmap := .EnvConfigMaps }}
+            {{- if and $configmap.Mount $configmap.Reference }}
+            - name: {{ $configmap.Reference.Name }}
+              mountPath: {{ $configmap.MountPath }}
+            {{- end }}
+            {{- end }}
+            {{- range $secret := .EnvSecrets }}
+            {{- if and $secret.Mount $secret.Reference }}
+            - name: {{ $secret.Reference.Name }}
+              mountPath: {{ $secret.MountPath }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+          containers:
+          - name: "{{ .Name }}"
+            {{- if .Registry }}
+            image: {{ .Registry }}/{{ .Image }}
+            {{- else }}
+            image: {{ .Image }}
+            {{- end }}
+            imagePullPolicy: IfNotPresent
+            {{- if gt (len .Command) 0 }}
+            command:
+            {{- range $cmd := .Command }}
+            - {{ $cmd -}}
+            {{- end }}
+            {{- end -}}
+            {{- if gt (len .Args) 0 }}
+            args:
+            {{- range $arg := .Args }}
+            - {{ $arg -}}
+            {{- end }}
+            {{- end }}
+            {{- if .WorkingDir }}
+            workingDir: {{ .WorkingDir }}
+            {{- end }}
+            volumeMounts:
+            - name: data-volume
+              mountPath: /data
+            {{- if .CertificateSecret }}
+            - name: {{ .CertificateSecret }}
+              mountPath: /etc/certs
+            {{- end }}
+            {{- if .ArtifactRequest }}
+              {{- if .ArtifactRequest.VolumeMountPath }}
+            - name: artifact-volume
+              mountPath: {{ .ArtifactRequest.VolumeMountPath }}
+              {{- end }}
+            {{- end }}
+            {{- range $configmap := .EnvConfigMaps }}
+            {{- if and $configmap.Mount $configmap.Reference }}
+            - name: {{ $configmap.Reference.Name }}
+              mountPath: {{ $configmap.MountPath }}
+            {{- end }}
+            {{- end }}
+            {{- range $secret := .EnvSecrets }}
+            {{- if and $secret.Mount $secret.Reference }}
+            - name: {{ $secret.Reference.Name }}
+              mountPath: {{ $secret.MountPath }}
+            {{- end }}
+            {{- end }}
+          volumes:
+          - name: data-volume
+            emptyDir: {}
+          {{- if .CertificateSecret }}
+          - name: {{ .CertificateSecret }}
+            secret:
+              secretName: {{ .CertificateSecret }}
+          {{- end }}
+          {{- if .ArtifactRequest }}
+            {{- if and .ArtifactRequest.VolumeMountPath .ArtifactRequest.StorageClassName }}
+          - name: artifact-volume
+            persistentVolumeClaim:
+              claimName: {{ .Name }}-pvc
+            {{- end }}
+          {{- end }}
+          {{- range $configmap := .EnvConfigMaps }}
+          {{- if and $configmap.Mount $configmap.Reference }}
+          - name: {{ $configmap.Reference.Name }}
+            configmap:
+              name: {{ $configmap.Reference.Name }}
+          {{- end }}
+          {{- end }}
+          {{- range $secret := .EnvSecrets }}
+          {{- if and $secret.Mount $secret.Reference }}
+          - name: {{ $secret.Reference.Name }}
+            secret:
+              secretName: {{ $secret.Reference.Name }}
+          {{- end }}
+          {{- end }}
+          restartPolicy: Never
+          {{- if .ServiceAccountName }}
+          serviceAccountName: {{.ServiceAccountName }}
+          {{- end }}
+          {{- if gt (len .ImagePullSecrets) 0 }}
+          imagePullSecrets:
+          {{- range $secret := .ImagePullSecrets }}
+          - name: {{ $secret -}}
+          {{- end }}
+          {{- end }}
+      backoffLimit: 0
+      ttlSecondsAfterFinished: {{ .DelaySeconds }}
+    
+  job-scraper-template.yml: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: {{ .Name }}-scraper
+      namespace: {{ .Namespace }}
+    spec:
+      {{- if gt .ActiveDeadlineSeconds 0 }}
+      activeDeadlineSeconds: {{ .ActiveDeadlineSeconds }}
+      {{- end }}
+      template:
+        spec:
+          containers:
+          - name: {{ .Name }}-scraper
+            {{- if .Registry }}
+            image: {{ .Registry }}/{{ .ScraperImage }}
+            {{- else }}
+            image: {{ .ScraperImage }}
+            {{- end }}
+            imagePullPolicy: IfNotPresent
+            command:
+              - "/bin/runner"
+              - '{{ .Jsn }}'
+            {{- if .ArtifactRequest }}
+              {{- if .ArtifactRequest.VolumeMountPath }}
+            volumeMounts:
+              - name: artifact-volume
+                mountPath: {{ .ArtifactRequest.VolumeMountPath }}
+              {{- end }}
+            {{- end }}
+          {{- if .ArtifactRequest }}
+            {{- if and .ArtifactRequest.VolumeMountPath .ArtifactRequest.StorageClassName }}
+          volumes:
+            - name: artifact-volume
+              persistentVolumeClaim:
+                claimName: {{ .Name }}-pvc
+            {{- end }}
+          {{- end }}
+          restartPolicy: Never
+          {{- if .ServiceAccountName }}
+          serviceAccountName: {{ .ServiceAccountName }}
+          {{- end }}
+          {{- if gt (len .ImagePullSecrets) 0 }}
+          imagePullSecrets:
+          {{- range $secret := .ImagePullSecrets }}
+          - name: {{ $secret -}}
+          {{- end }}
+          {{- end }}
+      backoffLimit: 0
+      ttlSecondsAfterFinished: {{ .DelaySeconds }}
+    
+  job-template.yml: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: "{{ .Name }}"
+      namespace: {{ .Namespace }}
+    spec:
+      {{- if gt .ActiveDeadlineSeconds 0 }}
+      activeDeadlineSeconds: {{ .ActiveDeadlineSeconds }}
+      {{- end }}
+      template:
+        spec:
+          initContainers:
+          - name: {{ .Name }}-init
+            {{- if .Registry }}
+            image: {{ .Registry }}/{{ .InitImage }}
+            {{- else }}
+            image: {{ .InitImage }}
+            {{- end }}
+            imagePullPolicy: IfNotPresent
+            command: 
+              - "/bin/runner"
+              - '{{ .Jsn }}'
+            volumeMounts:
+            - name: data-volume
+              mountPath: /data
+            {{- if .CertificateSecret }}
+            - name: {{ .CertificateSecret }}
+              mountPath: /etc/certs
+            {{- end }}
+            {{- range $configmap := .EnvConfigMaps }}
+            {{- if and $configmap.Mount $configmap.Reference }}
+            - name: {{ $configmap.Reference.Name }}
+              mountPath: {{ $configmap.MountPath }}
+            {{- end }}
+            {{- end }}
+            {{- range $secret := .EnvSecrets }}
+            {{- if and $secret.Mount $secret.Reference }}
+            - name: {{ $secret.Reference.Name }}
+              mountPath: {{ $secret.MountPath }}
+            {{- end }}
+            {{- end }}
+          containers:
+          - name: "{{ .Name }}"
+            {{- if .Registry }}
+            image: {{ .Registry }}/{{ .Image }}
+            {{- else }}
+            image: {{ .Image }}
+            {{- end }}
+            imagePullPolicy: IfNotPresent
+            command: 
+              - "/bin/runner"
+              - '{{ .Jsn }}'
+            volumeMounts:
+            - name: data-volume
+              mountPath: /data
+            {{- if .CertificateSecret }}
+            - name: {{ .CertificateSecret }}
+              mountPath: /etc/certs
+            {{- end }}
+            {{- range $configmap := .EnvConfigMaps }}
+            {{- if and $configmap.Mount $configmap.Reference }}
+            - name: {{ $configmap.Reference.Name }}
+              mountPath: {{ $configmap.MountPath }}
+            {{- end }}
+            {{- end }}
+            {{- range $secret := .EnvSecrets }}
+            {{- if and $secret.Mount $secret.Reference }}
+            - name: {{ $secret.Reference.Name }}
+              mountPath: {{ $secret.MountPath }}
+            {{- end }}
+            {{- end }}
+          volumes:
+          - name: data-volume
+            emptyDir: {}
+          {{- if .CertificateSecret }}
+          - name: {{ .CertificateSecret }}
+            secret:
+              secretName: {{ .CertificateSecret }}
+          {{- end }}
+          {{- range $configmap := .EnvConfigMaps }}
+          {{- if and $configmap.Mount $configmap.Reference }}
+          - name: {{ $configmap.Reference.Name }}
+            configmap:
+              name: {{ $configmap.Reference.Name }}
+          {{- end }}
+          {{- end }}
+          {{- range $secret := .EnvSecrets }}
+          {{- if and $secret.Mount $secret.Reference }}
+          - name: {{ $secret.Reference.Name }}
+            secret:
+              secretName: {{ $secret.Reference.Name }}
+          {{- end }}
+          {{- end }}
+          restartPolicy: Never
+          {{ if .ServiceAccountName }}
+          serviceAccountName: {{ .ServiceAccountName }}
+          {{ end }}
+          {{- if gt (len .ImagePullSecrets) 0 }}
+          imagePullSecrets:
+          {{- range $secret := .ImagePullSecrets }}
+          - name: {{ $secret -}}
+          {{- end }}
+          {{- end }}
+      backoffLimit: 0
+      ttlSecondsAfterFinished: 180
+    
+  pvc-container-template.yml: |
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: {{ .Name }}-pvc
+      namespace: {{ .Namespace }}
+    spec:
+      storageClassName: {{ .ArtifactRequest.StorageClassName }}
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+    
+  slack-config.json: |
+      [
+        {
+          "ChannelID": "",
+          "selector": {},
+          "testName": [],
+          "testSuiteName": [],
+          "events": [
+            "start-test",
+            "end-test-success",
+            "end-test-failed",
+            "end-test-aborted",
+            "end-test-timeout",
+            "start-testsuite",
+            "end-testsuite-success",
+            "end-testsuite-failed",
+            "end-testsuite-aborted",
+            "end-testsuite-timeout"
+          ]
+        }
+      ]
+  slack-template.json: |
+    {
+    	"blocks": [
+    		{
+    			"type": "section",
+    			"text": {
+    				"type": "plain_text",
+    				"emoji": true,
+    				"text": "Execution {{ .ExecutionName }} of {{ .TestName }} status {{ .Status }}"
+    			}
+    		},
+    		{
+    			"type": "context",
+    			"elements": [
+    				{
+    					"type": "image",
+    					"image_url": "{{ if eq .Status "failed" }}https://raw.githubusercontent.com/kubeshop/testkube/d3380bc4bf4534ef1fb88cdce5d346dca8898986/assets/imageFailed.png{{ else if eq .Status "passed" }}https://raw.githubusercontent.com/kubeshop/testkube/d3380bc4bf4534ef1fb88cdce5d346dca8898986/assets/imagePassed.png{{ else }}https://raw.githubusercontent.com/kubeshop/testkube/d3380bc4bf4534ef1fb88cdce5d346dca8898986/assets/imagePending.png{{ end }}",
+    					"alt_text": "notifications warning icon"
+    				}
+    				{{ if (gt .TotalSteps 0 )}}
+    				,
+    				{
+    					"type": "mrkdwn",
+    					"text": "*   {{ .FailedSteps }}/{{ .TotalSteps }} STEPS FAILED*"
+    				}
+    				{{ end }}
+    			]
+    		},
+    		{
+    			"type": "divider"
+    		},
+    		{
+    			"type": "section",
+    			"fields": [
+    				{
+    					"type": "mrkdwn",
+    					"text": "*Test Name*"
+    				},
+    				{
+    					"type": "mrkdwn",
+    					"text": "*Type*"
+    				},
+    				{
+    					"type": "plain_text",
+    					"text": "{{ .TestName }}",
+    					"emoji": true
+    				},
+    				{
+    					"type": "plain_text",
+    					"text": "{{ .TestType }}",
+    					"emoji": true
+    				}
+    			]
+    		},
+    		{{ if .Namespace}}
+    		{
+    			"type": "section",
+    			"fields": [
+    				{
+    					"type": "mrkdwn",
+    					"text": "*Namespace*"
+    				},
+    				{
+    					"type": "mrkdwn",
+    					"text": "*Labels*"
+    				},
+    				{
+    					"type": "plain_text",
+    					"text": "{{ .Namespace }} ",
+    					"emoji": true
+    				},
+    				{
+    					"type": "plain_text",
+    					"text": "{{ .Labels }} ",
+    					"emoji": true
+    				}
+    			]
+    		},
+    		{{ end }}
+    		{
+    			"type": "section",
+    			"fields": [
+    				{
+    					"type": "mrkdwn",
+    					"text": "*Start Time*"
+    				},
+    				{
+    					"type": "mrkdwn",
+    					"text": "*End Time*"
+    				},
+    				{
+    					"type": "plain_text",
+    					"text": "{{ .StartTime }}",
+    					"emoji": true
+    				},
+    				{
+    					"type": "plain_text",
+    					"text": "{{ .EndTime }}",
+    					"emoji": true
+    				}
+    			]
+    		},
+    		{{ if .Duration }}
+    		{
+    			"type": "section",
+    			"fields": [
+    				{
+    					"type": "mrkdwn",
+    					"text": "*Duration*"
+    				},
+    				{
+    					"type": "mrkdwn",
+    					"text": " "
+    				},
+    				{
+    					"type": "plain_text",
+    					"text": "{{ .Duration }}",
+    					"emoji": true
+    				}
+    			]
+    		},
+    		{{ end }}
+    		{
+    			"type": "divider"
+    		},
+    		{{ if .ClusterName }}
+    		{
+    			"type": "section",
+    			"text": {
+    				"type": "mrkdwn",
+    				"text": "Cluster Name: {{ .ClusterName }}"
+    			}
+    		},
+    		{{ end }}
+    		{
+    			"type": "section",
+    			"text": {
+    				"type": "mrkdwn",
+    				"text": "*Test Execution Results*"
+    			}
+    		},
+    		{
+    			"type": "section",
+    			"text": {
+    				"type": "mrkdwn",
+    				"text": "`kubectl testkube get execution {{ .ExecutionName }} `\n"
+    			}
+    		},
+    		{
+    			"type": "divider"
+    		}
+    	]
+    }

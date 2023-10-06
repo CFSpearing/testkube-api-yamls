@@ -1,0 +1,284 @@
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: watchers-rb-testkube
+  namespace: default
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name:  watchers-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: executors-crb-testkube
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: executors-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jobs-crb-testkube
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: jobs-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: scripts-crb-testkube
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: script-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tests-crb-testkube
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: test-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: secrets-crb-testkube
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: secrets-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: testsuites-crb-testkube
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: testsuite-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: webhooks-crb-testkube
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: webhook-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: configmaps-crb-testkube
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: configmaps-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: testsources-crb-testkube
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: testsource-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: testtriggers-crb-testkube
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: testtriggers-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: persistentvolumeclaims-crb-testkube
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: persistentvolumeclaims-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: testexecutions-crb-testkube
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: testexecution-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: testsuiteexecutions-crb-testkube
+  labels:
+    app.kubernetes.io/version: "1.14.6"
+    helm.sh/chart: testkube-api-1.14.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/instance: testkube
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: testsuiteexecution-role-testkube
+subjects:
+  - kind: ServiceAccount
+    name: testkube-api-server
+    namespace: default
+---
+# Source: testkube/charts/testkube-api/templates/rolebinding.yaml
+---

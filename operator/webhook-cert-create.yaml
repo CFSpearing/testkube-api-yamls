@@ -1,0 +1,75 @@
+---
+# Source: testkube/charts/testkube-operator/templates/webhook-cert-create.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: webhook-cert-create
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "6"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    app.kubernetes.io/version: "1.14.0"
+    helm.sh/chart: testkube-operator-1.14.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: testkube-operator
+    app.kubernetes.io/instance: testkube
+    app.kubernetes.io/component: admission-webhook
+  namespace: default
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    metadata:
+      annotations:
+      labels:
+        app.kubernetes.io/version: "1.14.0"
+        helm.sh/chart: testkube-operator-1.14.0
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: testkube-operator
+        app.kubernetes.io/instance: testkube
+        app.kubernetes.io/component: admission-webhook
+    spec:
+      
+      initContainers:
+        - name: migrate
+          image: docker.io/rancher/kubectl:v1.23.7
+          imagePullPolicy: IfNotPresent
+          args:
+            - delete
+            - secret
+            - webhook-server-cert
+            - --namespace
+            - default
+            - --ignore-not-found
+          securityContext:
+            readOnlyRootFilesystem: true
+      containers:
+        - name: create
+          image: docker.io/dpejcev/kube-webhook-certgen:1.0.11
+          imagePullPolicy: Always
+          args:
+            - create
+            - --host
+            - testkube-operator-webhook-service.default,testkube-operator-webhook-service.default.svc
+            - --namespace
+            - default
+            - --secret-name
+            - webhook-server-cert
+            - --key-name
+            - tls.key
+            - --cert-name
+            - tls.crt
+            - --ca-name
+            - ca.crt
+          securityContext:
+            readOnlyRootFilesystem: true
+      restartPolicy: OnFailure
+      serviceAccountName: testkube-operator-webhook-cert-mgr
+      nodeSelector: 
+        kubernetes.io/os: linux
+      tolerations: 
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+  backoffLimit: 5

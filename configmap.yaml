@@ -1,0 +1,8 @@
+---
+# Source: testkube/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: testkube-global-config
+data:
+  helmchartVersion: 1.14.10

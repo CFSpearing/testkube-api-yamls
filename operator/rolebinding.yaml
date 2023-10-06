@@ -1,0 +1,90 @@
+---
+# Source: testkube/charts/testkube-operator/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: testkube-operator-manager-rolebinding
+  labels:
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: testkube-operator-manager-role
+subjects:
+- kind: ServiceAccount
+  name: testkube-operator-controller-manager
+  namespace: default
+---
+# Source: testkube/charts/testkube-operator/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: testkube-operator-proxy-rolebinding
+  labels:
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: testkube-operator-proxy-role
+subjects:
+- kind: ServiceAccount
+  name: testkube-operator-controller-manager
+  namespace: default
+---
+# Source: testkube/charts/testkube-operator/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: testkube-operator-leader-election-rolebinding
+  labels:
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: testkube-operator-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: testkube-operator-controller-manager
+  namespace: default
+---
+# Source: testkube/charts/testkube-operator/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: testkube-cronjobs-rolebinding
+  labels:
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: testkube-cronjobs-role
+subjects:
+- kind: ServiceAccount
+  name: testkube-operator-controller-manager
+  namespace: default
+---
+# Source: testkube/charts/testkube-operator/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: testkube-operator-webhook-cert-mgr
+  namespace: default
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade,post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    app.kubernetes.io/version: "1.14.0"
+    helm.sh/chart: testkube-operator-1.14.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: testkube-operator
+    app.kubernetes.io/instance: testkube
+    app.kubernetes.io/component: admission-webhook
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: testkube-webhook-cert-mgr
+subjects:
+  - kind: ServiceAccount
+    name: testkube-operator-webhook-cert-mgr
+    namespace: default

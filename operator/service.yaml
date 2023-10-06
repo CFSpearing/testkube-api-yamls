@@ -1,0 +1,33 @@
+---
+# Source: testkube/charts/testkube-operator/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: testkube-operator-controller-manager-metrics-service
+  labels:
+    app.kubernetes.io/name: testkube-operator
+    app.kubernetes.io/instance: testkube
+  namespace: default
+spec:
+  ports:
+  - name: https
+    port: 8443
+    targetPort: https
+  selector:
+    control-plane: controller-manager
+---
+# Source: testkube/charts/testkube-operator/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: testkube-operator-webhook-service
+  labels:
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 9443
+  selector:
+    control-plane: controller-manager

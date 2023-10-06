@@ -1,0 +1,36 @@
+---
+# Source: testkube/charts/testkube-operator/templates/webhook.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: testkube-testkube-operator-webhook-admission
+  annotations:
+  labels:
+    app.kubernetes.io/component: admission-webhook
+    app.kubernetes.io/version: "1.14.0"
+    helm.sh/chart: testkube-operator-1.14.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: testkube-operator
+    app.kubernetes.io/instance: testkube
+webhooks:
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: testkube-operator-webhook-service
+      namespace: default
+      path: /validate-tests-testkube-io-v1-testtrigger
+  failurePolicy: Fail
+  name: vtesttrigger.kb.io
+  rules:
+  - apiGroups:
+    - tests.testkube.io
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - testtriggers
+  sideEffects: None

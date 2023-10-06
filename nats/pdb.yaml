@@ -1,0 +1,19 @@
+---
+# Source: testkube/charts/nats/templates/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: testkube-nats
+  namespace: default
+  labels:
+    helm.sh/chart: nats-0.19.1
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/instance: testkube
+    app.kubernetes.io/version: "2.9.8"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nats
+      app.kubernetes.io/instance: testkube

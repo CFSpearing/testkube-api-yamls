@@ -1,0 +1,88 @@
+---
+# Source: testkube/charts/testkube-operator/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testkube-operator-controller-manager
+  namespace: default
+  labels:
+    control-plane: controller-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  template:
+    metadata:
+      labels:
+        control-plane: controller-manager
+    spec:
+      
+      containers:
+      - name: kube-rbac-proxy
+        args:
+        - --secure-listen-address=0.0.0.0:8443
+        - --upstream=http://127.0.0.1:8080/
+        - --logtostderr=true
+        - --v=10
+        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9443
+          name: https
+        securityContext:
+          readOnlyRootFilesystem: true
+      - name: manager
+        args:
+        - --health-probe-bind-address=:8081
+        - --metrics-bind-address=127.0.0.1:8080
+        - --leader-elect
+        command:
+        - /manager
+        image: docker.io/kubeshop/testkube-operator:1.14.0
+        imagePullPolicy: 
+        env:
+        - name: APISERVER_FULLNAME
+          value: "testkube-api-server"
+        - name: APISERVER_PORT
+          value: "8088"
+        - name: APISERVER_TEMPLATE_CRONJOB
+          value: "YXBpVmVyc2lvbjogYmF0Y2gvdjEKa2luZDogQ3JvbkpvYgptZXRhZGF0YToKICBuYW1lOiAie3sgLk5hbWUgfX0iCiAgbmFtZXNwYWNlOiB7eyAuTmFtZXNwYWNlIH19CiAgbGFiZWxzOgogICAgdGVzdGt1YmU6IHt7IC5SZXNvdXJjZSB9fQpzcGVjOgogIHNjaGVkdWxlOiAie3sgLlNjaGVkdWxlIH19IgogIGNvbmN1cnJlbmN5UG9saWN5OiBGb3JiaWQKICBqb2JUZW1wbGF0ZToKICAgIHNwZWM6CiAgICAgIHRlbXBsYXRlOgogICAgICAgIHNwZWM6CiAgICAgICAgICBjb250YWluZXJzOgogICAgICAgICAgLSBuYW1lOiBjdXJsaW1hZ2UKICAgICAgICAgICAge3stIGlmIC5SZWdpc3RyeSB9fQogICAgICAgICAgICBpbWFnZToge3sgLlJlZ2lzdHJ5IH19L2N1cmxpbWFnZXMvY3VybAogICAgICAgICAgICB7ey0gZWxzZSB9fQogICAgICAgICAgICBpbWFnZTogY3VybGltYWdlcy9jdXJsCiAgICAgICAgICAgIHt7LSBlbmQgfX0KICAgICAgICAgICAgaW1hZ2VQdWxsUG9saWN5OiBJZk5vdFByZXNlbnQKICAgICAgICAgICAgY29tbWFuZDoKICAgICAgICAgICAgLSBzaAogICAgICAgICAgICAtIC1jCiAgICAgICAgICAgIGFyZ3M6CiAgICAgICAgICAgIC0gJ2N1cmwgLVggUE9TVCAtSCAiQ29udGVudC1UeXBlOiBhcHBsaWNhdGlvbi9qc29uIiAtZCAnJ3t7IC5EYXRhIH19JycgImh0dHA6Ly97eyAuU2VydmljZU5hbWUgfX06e3sgLlNlcnZpY2VQb3J0fX0vdjEve3sgLlJlc291cmNlIH19L3t7IC5JZCB9fS9leGVjdXRpb25zIicKICAgICAgICAgIHJlc3RhcnRQb2xpY3k6IE5ldmVyCiAgICAgIGJhY2tvZmZMaW1pdDogMAogICAgICB0dGxTZWNvbmRzQWZ0ZXJGaW5pc2hlZDogMTgwCg=="
+        - name: APISERVER_REGISTRY
+          value:  
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        securityContext:
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+      securityContext:
+        {}
+      serviceAccountName: testkube-operator-controller-manager
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: webhook-server-cert
+      tolerations:
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64

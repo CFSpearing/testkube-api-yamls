@@ -1,0 +1,40 @@
+---
+# Source: testkube/charts/nats/templates/nats-box.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testkube-nats-box
+  namespace: default
+  labels:
+    app: testkube-nats-box
+    chart: nats-0.19.1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: testkube-nats-box
+  template:
+    metadata:
+      labels:
+        app: testkube-nats-box
+    spec:
+      tolerations: 
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+      volumes:
+      containers:
+      - name: nats-box
+        image: natsio/nats-box:0.13.2
+        imagePullPolicy: IfNotPresent
+        resources:
+          null
+        env:
+        - name: NATS_URL
+          value: testkube-nats
+        command:
+        - "tail"
+        - "-f"
+        - "/dev/null"
+        volumeMounts:

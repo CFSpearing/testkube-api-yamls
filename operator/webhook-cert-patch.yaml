@@ -1,0 +1,60 @@
+---
+# Source: testkube/charts/testkube-operator/templates/webhook-cert-patch.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: webhook-cert-patch
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "6"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    app.kubernetes.io/version: "1.14.0"
+    helm.sh/chart: testkube-operator-1.14.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: testkube-operator
+    app.kubernetes.io/instance: testkube
+    app.kubernetes.io/component: admission-webhook
+  namespace: default
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    metadata:
+      annotations:
+      labels:
+        app.kubernetes.io/version: "1.14.0"
+        helm.sh/chart: testkube-operator-1.14.0
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: testkube-operator
+        app.kubernetes.io/instance: testkube
+        app.kubernetes.io/component: admission-webhook
+    spec:
+      
+      containers:
+        - name: patch
+          image: docker.io/dpejcev/kube-webhook-certgen:1.0.11
+          imagePullPolicy: Always
+          args:
+            - patch
+            - --namespace
+            - default
+            - --secret-name
+            - webhook-server-cert
+            - --webhook-name
+            - testkube-testkube-operator-webhook-admission
+            - --patch-validating=true
+            - --patch-mutating=false
+            - --crd-api-groups
+            - tests.testkube.io,executor.testkube.io
+          securityContext:
+            readOnlyRootFilesystem: true
+      restartPolicy: Never
+      serviceAccountName: testkube-operator-webhook-cert-mgr
+      nodeSelector: 
+        kubernetes.io/os: linux
+      tolerations: 
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
+  backoffLimit: 1

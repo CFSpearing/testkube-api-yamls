@@ -1,0 +1,31 @@
+---
+# Source: testkube/charts/nats/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: testkube-nats-config
+  namespace: default
+  labels:
+    helm.sh/chart: nats-0.19.1
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/instance: testkube
+    app.kubernetes.io/version: "2.9.8"
+    app.kubernetes.io/managed-by: Helm
+data:
+  nats.conf: |
+    # NATS Clients Port
+    port: 4222
+
+    # PID file shared with configuration reloader.
+    pid_file: "/var/run/nats/nats.pid"
+
+    ###############
+    #             #
+    # Monitoring  #
+    #             #
+    ###############
+    http: 8222
+    server_name:$POD_NAME
+    max_payload: 8MB
+    lame_duck_grace_period: 10s
+    lame_duck_duration: 30s

@@ -1,0 +1,51 @@
+---
+# Source: testkube/templates/pre-upgrade.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "mongodb-upgrade"
+  labels:
+    app.kubernetes.io/component: mongodb
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: testkube
+    app.kubernetes.io/name: mongodb-upgrade
+    helm.sh/chart: "testkube-1.14.10"
+    job-name: pre-upgrade
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    metadata:
+      name: "mongodb-upgrade"
+      labels:
+        app.kubernetes.io/component: mongodb
+        app.kubernetes.io/name: "mongodb-upgrade"
+    spec:
+      serviceAccountName: "mongodb-upgrade"
+      
+      containers:
+      - name: kubectl
+        image: k8s.gcr.io/hyperkube:v1.12.1
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/bash
+        - -c
+        - >
+            export current_mongodb_version=$(kubectl get deployment testkube-mongodb -o=jsonpath='{$.spec.template.metadata.labels}' -n default | awk -F'helm.sh/chart' '{print $2}' | awk -F'[^0-9]+' '{ print $2 }');
+            if [ "$current_mongodb_version" -eq "11" ];
+              then kubectl scale deployment testkube-mongodb --replicas=0 -n default;
+              else echo "MongoDB is up-to-date";
+            fi
+        securityContext:
+          {}
+      securityContext:
+        {}
+      restartPolicy: Never
+      tolerations: 
+        - effect: NoSchedule
+          key: kubernetes.io/arch
+          operator: Equal
+          value: arm64
